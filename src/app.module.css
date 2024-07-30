@@ -1,0 +1,41 @@
+.app {
+	text-align: center;
+}
+
+.label {
+	font-size: 20px;
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	margin: auto;
+	max-width: 400px;
+	padding: 20px;
+	border-radius: 10px;
+	background-color: rgb(219, 219, 219);
+}
+
+.form input {
+	margin-bottom: 10px;
+	box-sizing: border-box;
+	display: block;
+	width: 100%;
+	border-width: 1px;
+	border-style: solid;
+	padding: 10px;
+	font-family: inherit;
+}
+
+.button {
+	padding: 10px;
+	font-size: 16px;
+	background-color: rgb(231, 233, 238);
+}
+
+.error {
+	margin: auto;
+	max-width: 500px;
+	padding: 20px;
+	color: red;
+}
