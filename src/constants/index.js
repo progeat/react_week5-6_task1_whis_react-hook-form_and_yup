@@ -1,2 +1,2 @@
-export * from './email-regexp';
-export * from './password-regexp';
+export * from "./email-regexp";
+export * from "./password-regexp";

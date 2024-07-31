@@ -1,46 +1,45 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useStore } from "./hooks";
-// import { sendFormData } from "./utils";
+import { sendFormData } from "./utils";
 import { EMAIL_REGEXP, PASSWORD_REGEXP } from "./constants";
 import styles from "./app.module.css";
-
-const sendFormData = (formData) => {
-	// console.log("Отправка", formData);
-	console.log("Отправка");
-};
 
 const fieldsSchema = yup.object().shape({
 	email: yup
 		.string()
+		.required("Введите email.")
 		.matches(
 			EMAIL_REGEXP,
 			'Неверно указана почта. Почта должна содержать имя пользователя, знак "@", имя хоста, разделитель "." и название домена. Пример "username@hostname.com".',
 		),
 	password: yup
 		.string()
+		.required("Введите пароль.")
 		.matches(
 			PASSWORD_REGEXP,
-			'Неверно указан пароль. Пароль должен содержать латинские буквы вверхнем и нижнем регистре, цифры, спецсимволы "`~@!#$%&?"',
+			'Неверно указан пароль. Пароль должен содержать латинские буквы вверхнем и нижнем регистре, цифры, спецсимволы "`~@!#$%&?".',
 		)
-		.min(8, "Неверно указан пароль. Должно быть не меньше 8 символов")
-		.max(20, "Неверно указан пароль. Должно быть не больше 20 символов"),
+		.min(8, "Неверно указан пароль. Должно быть не меньше 8 символов.")
+		.max(20, "Неверно указан пароль. Должно быть не больше 20 символов."),
 	repeatPassword: yup
 		.string()
 		.oneOf(
 			[yup.ref("password")],
-			"Подтверждение пароля не совпадает с заданным",
+			"Подтверждение пароля не совпадает с заданным.",
 		),
 });
 
 export const App = () => {
+	const buttonSubmit = useRef(null);
 	const {
 		register,
 		handleSubmit,
-		formState: { errors },
+		formState: { errors, isValid },
+		reset,
 	} = useForm({
+		mode: "onBlur",
 		defaultValues: {
 			email: "",
 			password: "",
@@ -49,15 +48,22 @@ export const App = () => {
 		resolver: yupResolver(fieldsSchema),
 	});
 
-	const emailError = errors.email?.message;
-	const passwordError = errors.password?.message;
-	const repeatPassword = errors.repeatPassword?.message;
+	const messageError = Object.values(errors)
+		.map((error) => error.message)
+		.join("\n");
 
-	console.log(emailError, passwordError, repeatPassword);
+	useEffect(() => {
+		if (isValid) {
+			buttonSubmit.current.focus();
+		}
+	}, [isValid]);
 
 	return (
 		<div className={styles.app}>
-			<form className={styles.form} onSubmit={handleSubmit(sendFormData)}>
+			<form
+				className={styles.form}
+				onSubmit={handleSubmit((data) => sendFormData(data, reset))}
+			>
 				<h1 className={styles.label}>
 					Регистрация нового пользователя
 				</h1>
@@ -80,21 +86,15 @@ export const App = () => {
 					{...register("repeatPassword")}
 				/>
 				<button
-					// ref={buttonSubmit}
+					ref={buttonSubmit}
 					className={styles.button}
 					type="submit"
-					disabled={!!emailError && !!passwordError}
+					disabled={!isValid}
 				>
 					Зарегистрироваться
 				</button>
 			</form>
-			{emailError && <div className={styles.error}>{emailError}</div>}
-			{passwordError && (
-				<div className={styles.error}>{passwordError}</div>
-			)}
-			{repeatPassword && (
-				<div className={styles.error}>{repeatPassword}</div>
-			)}
+			{messageError && <div className={styles.error}>{messageError}</div>}
 		</div>
 	);
 };
